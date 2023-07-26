@@ -10,6 +10,7 @@ use League\Bundle\OAuth2ServerBundle\Manager\AuthorizationCodeManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Manager\ClientManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Manager\RefreshTokenManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Manager\ScopeManagerInterface;
+use League\Bundle\OAuth2ServerBundle\Manager\UserManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Tests\Fixtures\FakeGrant;
 use League\Bundle\OAuth2ServerBundle\Tests\Fixtures\FixtureFactory;
 use League\Bundle\OAuth2ServerBundle\Tests\Fixtures\SecurityTestController;
@@ -180,6 +181,11 @@ final class TestKernel extends Kernel implements CompilerPassInterface
 
         $container
             ->getAlias(AccessTokenManagerInterface::class)
+            ->setPublic(true)
+        ;
+
+        $container
+            ->getAlias(UserManagerInterface::class)
             ->setPublic(true)
         ;
 
