@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use League\Bundle\OAuth2ServerBundle\Manager\Doctrine\UserManager;
+use League\Bundle\OAuth2ServerBundle\Manager\UserManagerInterface;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 use League\Bundle\OAuth2ServerBundle\Manager\AccessTokenManagerInterface;
@@ -45,6 +47,14 @@ return static function (ContainerConfigurator $container): void {
             ])
         ->alias(AccessTokenManagerInterface::class, 'league.oauth2_server.manager.doctrine.access_token')
         ->alias(AccessTokenManager::class, 'league.oauth2_server.manager.doctrine.access_token')
+
+        ->set('league.oauth2_server.manager.doctrine.user', UserManager::class)
+        ->args([
+            null,
+            null,
+        ])
+        ->alias(UserManagerInterface::class, 'league.oauth2_server.manager.doctrine.user')
+        ->alias(UserManager::class, 'league.oauth2_server.manager.doctrine.user')
 
         ->set('league.oauth2_server.manager.doctrine.refresh_token', RefreshTokenManager::class)
             ->args([

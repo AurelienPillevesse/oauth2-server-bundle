@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace League\Bundle\OAuth2ServerBundle\Security\Authenticator;
 
+use Doctrine\Persistence\ManagerRegistry;
+use League\Bundle\OAuth2ServerBundle\Manager\UserManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Security\Authentication\Token\OAuth2Token;
 use League\Bundle\OAuth2ServerBundle\Security\Exception\OAuth2AuthenticationException;
 use League\Bundle\OAuth2ServerBundle\Security\Exception\OAuth2AuthenticationFailedException;
@@ -56,16 +58,23 @@ final class OAuth2Authenticator implements AuthenticatorInterface, Authenticatio
      */
     private $rolePrefix;
 
+    /**
+     * @var UserManagerInterface
+     */
+    private $userManager;
+
     public function __construct(
         HttpMessageFactoryInterface $httpMessageFactory,
         ResourceServer $resourceServer,
         UserProviderInterface $userProvider,
-        string $rolePrefix
+        string $rolePrefix,
+        UserManagerInterface $userManager
     ) {
         $this->httpMessageFactory = $httpMessageFactory;
         $this->resourceServer = $resourceServer;
         $this->userProvider = $userProvider;
         $this->rolePrefix = $rolePrefix;
+        $this->userManager = $userManager;
     }
 
     public function supports(Request $request): ?bool
@@ -108,8 +117,13 @@ final class OAuth2Authenticator implements AuthenticatorInterface, Authenticatio
                 return new NullUser();
             }
 
-            /** @todo create own function to get user by identifier */
+            $user = $this->userManager->findOneByIdentifier($userIdentifier);
 
+            if ($user instanceof UserInterface) {
+                return $user;
+            }
+
+            /** keep this code to not break connexion for previous tokens */
             if (!method_exists($this->userProvider, 'loadUserByIdentifier')) {
                 /** @psalm-suppress DeprecatedMethod */
                 return $this->userProvider->loadUserByUsername($userIdentifier);
